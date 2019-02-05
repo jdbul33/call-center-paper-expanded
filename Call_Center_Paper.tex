@@ -12,15 +12,17 @@
     urlcolor=cyan,
 }
 \urlstyle{same}
-\usepackage[font={small,it}]{caption}
+\usepackage[font={tiny,it}]{caption}
 \usepackage{fancyvrb}
 \title{Analysis, Visualization, \& Simulation of South Bend Government Call Center}
-\author{John D. Bulger\\Valparaiso University}
+\author{John D. Bulger \& Karl R.B. Schmitt\\
+	Mathematics \& Statistics Department\\
+	Affiliate, Computing \& Information Sciences Department
+	\\Valparaiso University, Valparaiso, IN}
 \date{March 10, 2019}
 
 	\begin{document}
 \maketitle
-
 \section{Introduction}
 The city of South Bend, located in northern Indiana, established a citizen-accessible call center in February 2013.  It addresses almost every aspect of city-citizen interaction, including waste pick-up and removal, water billing and disconnections, and code enforcement.  By serving as a central hub for communication, the call center is able to consolidate a substantial amount of data regarding citizens as consumers.  This data is available on South Bend's open data portal at \textit{https://data-southbend.opendata.arcgis.com}.
 
@@ -53,59 +55,69 @@ After loading the data, it was inspected for missing data and reasonableness.  T
 
 	\subsection{Analytical Methods}
 	
+\paragraph{Call volume by month} was analyzed using the daily data, which provides aggregate totals by day for a 2-year period. The relevant data was manipulated by taking the mean of the daily call volume for every record in each month.  As an exercise in thoroughness, these findings were subjected to a two-sided t-test for statistical significance.  For the purposes of this test, the null hypothesis stated that “the two months have identical expected values."  For the null hypothesis to be disproved, a standard threshold p-value of 0.05 was used.
+
+\paragraph{Call volume by day of the week} was analyzed using data contained in two files: daily data and topic data.  The first conveniently had an attribute consisting of an integer corresponding to a weekday.  The topic data included a date of call, but it did not have a direct day attribute.  This attributed was created with the same format as the daily data, and the calls corresponding to each date were counted.  The two dataframes were then concatenated, providing the total number of calls for each date.  Once grouped by weekday, this yielded a distribution of total calls for each day of the week over a five year period.  This data was also subjected to a t-test, in order to determine if the days statistically differed in calls received from each other.  As in the t-test for call volume by month, a 0.05 threshold was used for the p-value.
+
+\paragraph{Call volume \& duration by department} were analyzed using the topic data, as the data contained recent and complete information regarding departments.  The calls were aggregated by department, using total calls received and mean duration in order to compare departments.
+
+\paragraph{Call volume \& duration by topic} were analyzed from the topic data as well.  Among this dataset, 426 unique call topics existed.  The calls were grouped by topic using total calls received and mean duration in order to facilitate comparison.
 
 
+	\subsection{Analytical Findings}
+
+\paragraph{Call volume by month} can be observed in the boxplots in Figure 1.  Months with the highest average daily call volumes were July, April, June, and May (in that order).  March, interestingly, has the lowest average volume by a large margin.  This is especially intriguing since it is immediately prior to what can be seen as the “busy season".  The heatmap in Figure 2 shows the resulting p-value from the two tailed t-test between each pair of months' distributions.  An interesting point that appears is that June's call volumes are not statistically different from those in April.  March, however, has a statistically different daily average than every other month.
 
 
+	\begin{figure}
+	\includegraphics[scale=.4]{monthly_boxplot.png}
+	\caption{Distribution of average daily call volume by month}
+	\end{figure}
+
+	\begin{figure}
+	\includegraphics[scale=.4]{Daily_Heatmap.png}
+	\caption{P-values resulting from t-test on daily call volume by month}
+	\end{figure}
+
+\paragraph{Call Volume by day of the week} can be compared in the boxplots in Figure 3.  Upon evaluation, call volume trends highest on Monday, then steadily decreases as the work week continues on.  The call center is not open on the weekend, so this could be a reason for the higher number of calls on Monday and Tuesday. Presumably, customers would call early in the week to address any issues that arose over the weekend.  A heatmap is shown in Figure 4, which emphasizes the statistically different mean for each pairing of weekdays.  The comparison of Wednesday and Thursday, according to this test, is the only pairing that does not exhibit statistically significant different call distribution from each other.
+
+	\begin{figure}
+	\includegraphics[scale=.4]{Daily_Call_Boxplot.png}
+	\caption{Distribution of average daily call volume by weekday}
+	\end{figure}
+
+	\begin{figure}
+	\includegraphics[scale=.4]{Heatmap.png}
+	\caption{P-values resulting from t-test on daily call volume by day of the week}
+	\end{figure}
+
+\paragraph{Calls by department} were analyzed by two measures:  average duration and total volume.  Departments such as Solid Waste and Water Works had the highest call volumes, while Code Enforcement and the Mayor's Office had the longest average durations.  Given this incongruency, it is not clear where the call center's resources should be focused.  As a more direct approach to the measure of total call volume, the total departmental call times were calculated.  This can be visualized in Figure 5.
+
+	\begin{figure}
+	\includegraphics[scale=.4]{InkedCalls_Department_sim_LI.jpg}
+	\caption{Total time spent on calls by top departments}
+	\end{figure}
+
+\paragraph{Calls by topic} were also analyzed by duration and volume.  When ranked by average duration, many obscure topics rose to the extremes.  Of the top 20 topics with the shortest duration, 19 consisted of less than three total calls.  Viewed as a percentage of the total 202,500 call dataset, these calls are such a small proportion that it would provide marginal insight to the city.  A similar, though less extreme, situation occurred when viewing topics with by duration.  This is be illustrated through a quantile-quantile plot for individual topics with percentile score for both average duration and total volume serving as the axes, which can be seen in Figure 6.
+
+\par
+In light of this exploration, it was determined that the most important results for the city to see included only topics composing a significant proportion of total calls.  When ranking by duration, only topics with total volume above the first quartile of total call volume were included, yielding results that could be viewed as more relevant to management.  Topics with long durations seemed to be centralized around complaints and billing issues, and topics with a short mean duration were mostly general information inquiries.  When analyzed in this manner, there is a 195 second difference between the mean durations of the longest and shortest topics.
+
+\par
+Topic volume was dominated by topics within many of the top departments identified earlier in Figure 1.  The top two highest volume topics, by a large margin, were “Miscellaneous Trash Information” and “Water Miscellaneous”.  This is reflective of positions of Solid Waste and Water Works in the departmental analysis.  In order to allow the city to effectively visualize this tandem effect, topics within the some of the busiest departments were plotted in an interactive scatterplot, as seen in Figure 7.  In this visualization, average call duration and total call volume serve as the axis, with glyphs used to differentiate between departments.  As the inset image illustrates, a zoomed view is necessary to more clearly see relationships between topics.  The Bokeh library allowed for this ability to be codified into the plot.
 
 
+	\begin{figure}
+	\includegraphics[scale=.4]{new_q-q_plot.png}
+	\caption{\textbf{Quantile-Quantile Plot of Topics: Call Volume by Call Duration} \\
+	Illustration of individual topics' disparity between call duration and quantity}
+	\end{figure}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	\begin{figure}
+	\includegraphics[scale=.6]{scatter_ready.png}
+	\caption{\textbf{Scatterplot of Call Volume by Topic: The Busiest Departments} \\
+		The diamond is not plotted to scale and represents two solid waste topics that exceeded the bounds of the plot}
+	\end{figure}
 
 
 
@@ -115,8 +127,30 @@ After loading the data, it was inspected for missing data and reasonableness.  T
 \section{Visualization}
 
 
+The above analysis yielded results showing trends for the call center by time, department, and topic.  The call center, however, did not have any specific questions for which it was seeking answers.  Instead, this project was geared towards discovering trends, patterns, and insights; these were then provided to the city so that they could formulate specific questions based on the story that was told by this data.  In order to provide this to city management, a visualization dashboard was chosen as the most effective medium.  The Bokeh package was used to create interactive visualizations and allowed the final product to be packaged into a HTML file and sent to the call center management.  In all, the dashboard includes visualizations of:
 
-\section{Mathematical Model}
+	\begin{itemize}
+		\item Pie chart of total call time by department
+		\item Histogram of call volume by day of week, overlaid, with legend providing hide/show capabilities
+		\item Bar charts of topics with longest and shortest average call durations
+		\item Jitterplot of call volume by topic within top departments
+		\item Bar chart of call volume by month
+	\end{itemize}
+
+These charts all utilize various implementations of Bokeh tools, such as HoverTool, BoxZoom, Pan, and checkbox interactivity.  By incorporating these interactions into the dashboard, the result is a more dynamic, engaging product that is simple to interact with for employees outside of the technical fields.  An image of the final dashboard can be seen in Figure 8, while a live link can be accessed at \textit{http://jdbul33.github.io/CallCenterDashboard.html}.
+
+	\begin{figure}
+	\includegraphics[scale=.4]{Dashboard.jpg}
+	\caption{Static image of HTML-based dashboard delivered to the City of South Bend}
+	\end{figure}
+
+
+
+\section{Mathematical Model \& Simulation}
+
+This data analysis laid the groundwork for a model and sim xxxxxxxxxxx.  ARena, etc
+%fix all this stuffs
+
 
 	\subsection{Base Model}
 The core model structure is based off the work of Mandelbaum in 2001\cite{mandelbaum}.  In his highly esteemed text, Mandelbaum lays out the basic schematic of a call center model.  His model illustrates the possible flow of a call, starting with its arrival until disposal, be that as a lost call or having completed successfully.  While simplistic by nature, the model covers all of the basic aspects of a call center in a sensible format that can easily by applied in Arena.  This model can be seen in Figure 2.  
@@ -129,7 +163,7 @@ The core model structure is based off the work of Mandelbaum in 2001\cite{mandel
 Mandelbaum's model identifies one avenue for arrivals (incoming calls) and three methods of disposal(lost calls due to busy signal, lost calls due to wait time, and completed calls).  It can be seen that the lost calls due to busy signals and the lost calls due to wait time both have retrial loops built in where some customers may immediately try to call into the system again and are treated as new arrivals for the sake of the simulation.  Completed calls also have the option to ``return", where they would immediately re-enter the system for whatever reason (perhaps an unresolved issue).  There is a single centralized queue before the calls are distributed among resources (operators).  At its core, this is a condensed high-level view of a call center model, specifically designed so that it could easily be expanded as needed for specific analyses.
 
 \subsection{Analysis-Specific Model}
-The model used for this analysis expands a great deal on the core model identified by Mandelbaum.  It adds three key features that the original model omits: voicemails, operator breaks, and an alternate call flow for supervisor assistance.  Additionally, calls are assigned key attributes that determine their specific flow and timing throughout the simulation.  These key attributes include topic, language, and priority.  The hypothetical self-service option was added on to this expanded model for the relevant analysis.
+The model created for this analysis expands a great deal on the core model identified by Mandelbaum.  It adds three key features that are omitted in the original model: voicemails, operator breaks, and an alternate call flow for supervisor assistance.  Additionally, calls are assigned key attributes that determine their specific flow and timing throughout the simulation.  These key attributes include topic, language, and priority.  The hypothetical self-service option was added on to this expanded model for the relevant analysis.
 
 	\paragraph{Voicemails}
 	
@@ -150,12 +184,6 @@ Calls are assigned a topic based on the distribution of topics in historical cal
 	\paragraph{Self-Service}
 	
 One of the purposes of this project was to evaluate the impact of adding a self-service option that would eliminate the need to speak to an agent for certain call topics.  This was added as an extension of the base model, but was run separately from the base model for the use of direct comparison of the results.  Depending on the assigned call topic, callers have the option to self-service, with multiple routes leading to the agent queue in the event the caller has trouble with self-service and needs an operator.
-
-
-\begin{figure}[h]
-	\includegraphics[scale=.53]{Calls_Department_sim.png}
-	\caption{Call distribution by department from source data}
-\end{figure}
 
 	\paragraph{Language}
 
@@ -181,48 +209,8 @@ The model was also verified by ensuring the output matched the estimated results
 	
 The model and simulation's results were ultimately validated using historical data.  Since several years' worth of call center data was available, the results of the base simulation were compared to this.  The number of call arrivals was created from the historical data, so this can be compared as well.  The operator schedule was provided by call center management, allowing for actual validation for these values.  Historical data also exists for percent of calls abandoned, which was also be directly compared.
 	
-\section{Simulation}
 
-	\subsection{Method}
-	
-A call center is modeled as a discrete event model, leading to the logical choice of Arena for this simulation.  Arena excels in creating and monitoring entities, while providing a visual representation of their flow through a system.  Arena allows for efficient statistic and metric collection, which can be organized and analyzed to answer any questions initially posed for the simulation.
-
-\par
-
-Arena also features built-in modules that vastly simplify actions that would need to intricately programmed in a high-level language.  A prime example of this is Arena's schedule option, which is a built-in option that was leveraged for two aspects of this project:  the call arrival schedule and operator schedule.  By using this included module, the simulation was able to be developed as close to ``real-life" as possible in these areas.
-	
-	\subsection{Attributes \& Resources}
-
-Three main attributes are assigned to entities upon entry to the system:  topic, language, and priority.  Topic serves as a determinant of the call duration distribution, and is pulled from historical data.  Language is assigned to be either English or Spanish, and the distribution is based on the South Bend Hispanic population percentage.  While other residents surely speak other native languages, the call center only deals internally with English or Spanish, and this simulation is set up to reflect this.  Priority is assigned as a ``medium" for incoming calls, ``low" for voicemails to be returned, and ``high" for calls routed to or from a supervisor.
-
-\par
-
-Two resources exist in this call center model:  call center liaisons (operators) and supervisors.  The operator schedule (and thus total resources at any given simulation time) was based on the historical data as opposed to being an estimated parameter.  This schedule can be seen in Figure 4.  In keeping with typical call center model processes as described by Zhang, these operators are treated as having the same skill level, and thus do not influence the handling of a call \cite{zhang}.  Supervisors handle calls identified as problematic, but are again treated as if they are of the same skill level.  Operator lunches and personal breaks are also based on the schedule provided.
-
-	\begin{figure}[h]
-		\includegraphics[scale=.3]{schedule2.jpg}
-		\caption{Call center operator schedule}
-	\end{figure}
-	
-	\subsection{Parameters}
-	
-	
-	This simulation utilizes an accurate representation of arrivals as calculated from the aforementioned open-source data.  Mean call arrivals were identified down to the hour for each weekday.  This allows for the simulation to not only pick up on historical call patterns by hour, but also the differences between each day.  A Poisson distribution, broken down by this hourly data, was used to model the arrivals, allowing for the arrivals to be scheduled as such in Arena.  This will base the actual volume of calls in line with prior historical trends, as opposed to applying a rough blanket estimate.
-	
-	\par
-	
-	Several other estimated parameters exist in this model and simulation.  These included callers getting a busy signal (and the corresponding retry rate), callers who experience a problem and need to speak with a supervisor, and whether calls who spoke to a supervisor need to be transferred back to an agent to complete a task.  These parameters were estimated through the use of research and experimentation in an effort to represent the center as closely as possible, since no data existed for these.  However, they were set at levels where total calls abandoned and handled were similar to the historical data.
-	
-	\subsection{Run Settings \& Replications}
-	
-	 The call center is open five days a week, from 7:30 AM to 5:30 PM.  Therefore, the simulation was run for 100 replications of five ten-hour days.  Each replication serves to represent an ``average" week for the call center.  In this case, 100 replications should be enough in order to obtain a reliable simuation of the call center.
-	 
-	 
-	\subsection{Adjustments for Self-Serve Option Model}
-	
-	The base model was expanded upon into a second model in order to evaluate the effectiveness of adding a self-service alternative before speaking to an agent.  The ``route" for calls to self-service utilized empirical research regarding consumer attitudes for automated systems.  A survey by Nuance Enterprise suggests that up to 75\% of consumers see self-service as a convenient option when available while 67\% said they preferred self-service over dealing with a company representative \cite{webblog}.  The simulation utilizes the 67\% preference to determine the number of call arrivals that will be routed into self-service options, given the customer has been assigned a topic that is self-serviceable.  A self-serviceable topic is defined as a percentage of callers with a ``Water Works" and ``Solid Waste" topic, since many of these calls can be handled via a touch-tone or voice system.  All remaining calls were routed to the operator queue discussed in the original model.
-
-\section{Experimentation \& Results}
+\section{Simulation \& Results}
 
 	\subsection{Verification \& Validation}
 	
@@ -243,11 +231,11 @@ Two resources exist in this call center model:  call center liaisons (operators)
 	
 	\par
 	
-	The simulation was run with the base operator schedule, -1, +1, and +2.  Calls abandoned and operator utilization can be seen in Figure 5.  Both of these metrics reacted as expected, with less hang-ups and lower operator utilization as the number of operators increased.  Wait time was an interesting metric, in that it did not vary significantly at all with the change in operators, varying by 0.02 hours.  This can most likely be attributed to the customer patience parameter; as callers hang up, the queue advances.  It seems that over replications, this effect evens out regardless of the number of operators (within reason).
+	The simulation was run with the base operator schedule, -1, +1, and +2.  Calls abandoned and operator utilization can be seen in Figure 10.  Both of these metrics reacted as expected, with less hang-ups and lower operator utilization as the number of operators increased.  Wait time was an interesting metric, in that it did not vary significantly at all with the change in operators, varying by 0.02 hours.  This can most likely be attributed to the customer patience parameter; as callers hang up, the queue advances.  It seems that over replications, this effect evens out regardless of the number of operators (within reason).
 	
 	\begin{figure}[h]
-		\includegraphics[scale=.5]{num_ops_plot.png}
-		\caption{}
+		\includegraphics[scale=.5]{Inkednum_ops_plot_LI.jpg}
+		\caption{Average daily number of abandoned calls and operator utilization percentage at different staffing levels}
 	\end{figure}
 	
 	
@@ -261,7 +249,7 @@ Two resources exist in this call center model:  call center liaisons (operators)
 	
 	\par
 	
-	Overall, this experimentation worked as expected.  As the number of callers who chose the self-service option increased, the wait time, queue length, and agent utilization all experienced linear decreases.  A visualization of the queue statistics can be seen in Figure 6.  Furthermore, the decrease in operator utilization can be seen in Figure 7.  It should be noted that in these trials, the graphs do show a definitive decrease in all metrics.
+	Overall, this experimentation worked as expected.  As the number of callers who chose the self-service option increased, the wait time, queue length, and agent utilization all experienced linear decreases.  A visualization of the queue statistics can be seen in Figure 11.  Furthermore, the decrease in operator utilization can be seen in Figure 12.  It should be noted that in these trials, the graphs do show a definitive decrease in all metrics.
 	
 	\par
 	
@@ -269,13 +257,13 @@ Two resources exist in this call center model:  call center liaisons (operators)
 
 \begin{figure}[h]
 	\includegraphics[scale=.5]{self_serve_results.png}
-	\caption{}
+	\caption{Operator waiting queue statistics as a function of self-service adoption rates}
 \end{figure}
 
 
 \begin{figure}[h]
 	\includegraphics[scale=.5]{op_self_serve.png}
-	\caption{}
+	\caption{Operator utilization in response to self-service adoption rates}
 \end{figure}
 
 
@@ -293,27 +281,16 @@ Secondly, the self-serve simulation experiment shows that operator utilization d
 Both of these experiments include estimated parameters, particularly the hypothetical self-service model.  As a result, neither of these experiments definitively answer/attempt to answer any of these questions until they are compared to internal data for accuracy.  Such data would replace estimates with more accurate numbers and distributions; then, a simulation could be run for a definitive question.
 
 
+
+
+
+
+
+
+
 \section{Conclusion}
 
 Overall, this analysis resulted in the building of an accurate, historically validated model that was modified and used to provide results to two main questions.  While call centers are a frequently modeled system, this project was unique since it is based on an actual, operating center.  The inclusion of as much historical data as possible leads this analysis from the realm of theoretical into a practical and useful application.  The primary goal of this project was to create a model as similar as possible to the actual call center; this was achieved.  The questions explored, while simplistic in nature, would surely be of interest to city officials when it comes to budgets and annual planning.
-
-
-	\subsection{Challenges}
-
-	This model development and simulation presented two main challenges that had to be overcome in order to produce a successful project.  First, while many parameters for the model were either contained in or could be deduced from the historical data, several were not.  These included customer patience levels, number of supervisors (and the number of calls they handled), and the number of voicemails necessitating a return call.  Determining appropriate levels for these parameters involved some trial and error, and perhaps may not still be completely accurate.  However, the confidence held in the call arrival rate, duration distributions, and operator schedule is exceptionally strong due to this historical data analysis.  Since these components are arguably the most important aspects of the call center, the model is not particularly sensitive to the estimated parameters.
-	
-	\par
-	
-	A second main challenge was determining when the model's complexity was sufficient in order to explore the posed questions and avoiding an overly-complicated or unbalanced model.  With an actual call center as the subject, this model could have easily become so complicated as to be inefficient and more error-prone (harder to test and debug).  A prime example of this is the assignment of call topics to determine the call duration distribution.  Twenty-six departments, each with their own duration statistics, exist in the historical data.  However, the final model incorporates only the six most common departmental topics, with the nineteen others aggregated as a weighted average.  While it is tempting to replicate the historical data as accurately as possible, including all twenty-six options with their statistics would have created an unnecessarily complex section of the model, leading to imbalance.  This would have made verification of the corresponding modules nearly impossible.
-	
-	\par
-	
-	These two challenges were successfully overcome in the development of the model and its corresponding simulation.  While an imperfect representation of the actual call center, like any model, it accurately captures the most important aspects in order to develop worthwhile results.  With time, more challenges could be overcome and identified, but the current model functions well for the level of the desired analysis given the information and data available.
-
-	\subsection{Opportunities for Further Study}
-
-	This model lays a successful base for future analysis or study.  If more data, beyond the publicly available data, was to be acquired, the model and its parameters could be defined even more accurately.  Similarly, if further time was dedicated, the model could be designed to represent a complete year for the call center, including holidays, seasonal call and topic flucuations, and possibly fluctuating staffing levels.  However, the work to create such a specific model would require a goal that has not been defined.  The current model will be provided to the city of South Bend.  Since Arena is publicly available, the business analytics department could perhaps retain the model and build on it/use it as the need arises.
-
 
 
 

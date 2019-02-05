@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{setspace}
+\doublespacing
+\graphicspath{ {./Figures/} }
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+\urlstyle{same}
+\usepackage[font={tiny,it}]{caption}
+\usepackage{fancyvrb}
+\title{Analysis, Visualization, \& Simulation of South Bend Government Call Center}
+\author{John D. Bulger \& Karl R.B. Schmitt\\
+	Mathematics \& Statistics Department\\
+	Affiliate, Computing \& Information Sciences Department
+	\\Valparaiso University, Valparaiso, IN}
+\date{March 10, 2019}
+
+
+
+
+%\setlength\parindent{0pt}
+
+
+
+\begin{document}
+	\maketitle
+	
+\section*{Abstract}
+
+The city of South Bend, Indiana operates a call center that serves as a primary point of contact for citizens, and it handles topics for nearly all of the city's departments.  An open data portal, maintained by the city, contains several years’ worth of information.  An analysis of this data was conducted using Python.  The data was analyzed for patterns by time of year, department, and topics with varying methods.  The cleaned, manipulated, and explored data was then developed into an interactive dashboard using the Bokeh library.  An interactive HTML file was distributed to the city, which can then be utilized, modified, and possibly connected directly to the data source.  This analysis discovered insights in areas of interest to the city.  July was found to be the most voluminous month, and this was shown to be statistically significant by using a two-sided t-test.  Additionally, the departments of Solid Waste and Water Works, along with many of their sub-topics, had some of the highest call volumes.  When calls were analyzed by duration, however, many lower volume topics were shown to take longer to resolve.
+
+\par
+
+This background and research was then developed into a model and run as a simulation.  Historical data such as arrivals, call topic distributions, and call durations were used in construction of the simulation's parameters.  Additionally, call center management provided information such as staffing levels, hours worked, and operator breaks.  This allowed an accurate model to be constructed, which was then run through simulations to explore two main areas of inquiry:  adequacy of staffing levels and the effect addition of a self-service line with no operator interaction.  The results showed that the call center could explore lowering their staffing by one full-time operator with a minimal effect on caller satisfaction, and that the addition of a self-service option could significantly reduce queue time and allow for a much smaller full-time staff.
+
+ 
+\end{document}
